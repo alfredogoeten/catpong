@@ -28,6 +28,9 @@ let ball
 let paddleLeft
 let paddleRight
 let isGameStarted = false
+let arrows
+let keys = {}
+let paddleSpeed = 400
 
 function preload() {
 
@@ -46,7 +49,7 @@ function create() {
     )
 
     ball.setCollideWorldBounds(true)
-    ball.setBounce(1,1) 
+    ball.setBounce(1, 1)
 
     paddleLeft = this.physics.add.sprite(
         ball.body.width / 2 + 40,
@@ -65,17 +68,40 @@ function create() {
 
     paddleRight.setImmovable(true)
     paddleRight.setCollideWorldBounds(true)
-    
+
     this.physics.add.collider(paddleLeft, ball)
-    this.physics.add.collider(paddleRight, ball) 
+    this.physics.add.collider(paddleRight, ball)
+
+    arrows = this.input.keyboard.createCursorKeys();
+    keys.w = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
+    keys.s = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
 
 }
 
 function update() {
 
-    if (!isGameStarted){
+    if (!isGameStarted) {
         ball.setVelocity(200, 200)
         isGameStarted = true
+    }
+
+    paddleLeft.body.setVelocity(0)
+    paddleRight.body.setVelocity(0)
+
+    if (keys.w.isDown) {
+        paddleLeft.body.setVelocityY(-paddleSpeed)
+    }
+
+    if (keys.s.isDown) {
+        paddleLeft.body.setVelocityY(paddleSpeed)
+    }
+
+    if (arrows.up.isDown) {
+        paddleRight.body.setVelocityY(-paddleSpeed)
+    }
+
+    if (arrows.down.isDown) {
+        paddleRight.body.setVelocityY(paddleSpeed)
     }
 
 }
