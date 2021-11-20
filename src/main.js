@@ -31,6 +31,9 @@ let isGameStarted = false
 let arrows
 let keys = {}
 let paddleSpeed = 400
+let randomSpeed = (Math.random() * 250) + 150;
+let leftScoreText
+let rightScoreText
 
 function preload() {
 
@@ -76,12 +79,31 @@ function create() {
     keys.w = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
     keys.s = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
 
+    leftScoreText = this.add.text(
+        this.physics.world.bounds.width / 2,
+        this.physics.world.bounds.height / 2,
+        "Good cat scored!"
+    )
+
+    rightScoreText = this.add.text(
+        this.physics.world.bounds.width / 2,
+        this.physics.world.bounds.height / 2,
+        "Evil cat scored!"
+    )
+
+    leftScoreText.setOrigin(0.5)
+    rightScoreText.setOrigin(0.5)
+    leftScoreText.setVisible(false)
+    rightScoreText.setVisible(false)
+
 }
 
 function update() {
 
+    //Set ball speed to a random value when game starts
+
     if (!isGameStarted) {
-        ball.setVelocity(200, 200)
+        ball.setVelocity(randomSpeed, randomSpeed)
         isGameStarted = true
     }
 
@@ -102,6 +124,24 @@ function update() {
 
     if (arrows.down.isDown) {
         paddleRight.body.setVelocityY(paddleSpeed)
+    }
+
+    // Left scores
+
+    if (ball.body.x > paddleRight.body.x + 75 ){
+        paddleLeft.body.setVelocity(0)
+        leftScoreText.setVisible(true)
+        ball.setVelocity(0)
+        this.input.keyboard.enabled = false;               
+    }
+
+    //Right scores
+
+    if (ball.body.x < paddleLeft.body.x  ){
+        paddleLeft.body.setVelocity(0) 
+        rightScoreText.setVisible(true)
+        ball.setVelocity(0)
+        this.input.keyboard.enabled = false;             
     }
 
 }
