@@ -13,6 +13,7 @@ const config = {
         preload,
         create,
         update
+
     },
     physics: {
         default: 'arcade',
@@ -33,13 +34,15 @@ let keys = {}
 let paddleSpeed = 400
 let randomDirectionX
 let randomDirectionY
-let randomSpeed = (Math.random() * 250) + 150;
+let randomSpeed;
 let leftScoreText
 let rightScoreText
 let leftPointText
 let rightPointText
 let leftScore = 0
 let rightScore = 0
+let leftWin
+let rightWin
 
 function preload() {
 
@@ -49,67 +52,92 @@ function preload() {
 
     this.load.bitmapFont('font', require('../assets/font/font.png'), require('../assets/font/font.xml'))
 
+    this.load.audio('hit', require('../assets/sounds/pong.ogg'), require('../assets/sounds/pong.ogg'))
+
 }
 
+
 function create() {
+
+    //Create ball and paddles
 
     ball = this.physics.add.sprite(
         this.physics.world.bounds.width / 2,
         this.physics.world.bounds.height / 2,
         'ball'
     )
+        .setCollideWorldBounds(true)
+        .setBounce(1, 1)
 
-    ball.setCollideWorldBounds(true)
-    ball.setBounce(1, 1)
+    randomSpeed = (Math.random() * 250) + 150
     randomDirectionX = Math.random() < 0.5 ? -1 : 1
     randomDirectionY = Math.random() < 0.5 ? -1 : 1
 
-    paddleLeft = this.physics.add.sprite(
-        ball.body.width / 2 + 40,
-        this.physics.world.bounds.height / 2,
-        'paddleLeft'
-    )
+    var create_paddle = (x, sprite) => {
+        var paddle = this.physics.add.sprite(x, this.physics.world.bounds.height / 2, sprite);
+        paddle.setImmovable(true).setCollideWorldBounds(true)
+        return paddle
+    }
 
-    paddleLeft.setImmovable(true)
-    paddleLeft.setCollideWorldBounds(true)
+    paddleLeft = create_paddle(
+        ball.body.width / 2 + 40,        
+        'paddleLeft');
 
-    paddleRight = this.physics.add.sprite(
-        this.physics.world.bounds.width - (ball.body.width / 2 + 40),
-        this.physics.world.bounds.height / 2,
-        'paddleRight'
-    )
-
-    paddleRight.setImmovable(true)
-    paddleRight.setCollideWorldBounds(true)
+    paddleRight = create_paddle(
+        this.physics.world.bounds.width - (ball.body.width / 2 + 40),        
+        'paddleRight');
 
     this.physics.add.collider(paddleLeft, ball)
     this.physics.add.collider(paddleRight, ball)
+
+
+    this.hitSound = this.sound.add('hit')
+
+
+
+    //Inputs
 
     arrows = this.input.keyboard.createCursorKeys();
     keys.w = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
     keys.s = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
 
+
+
+
+    //Point scored texts
+
+    var create_text = (message) => {
+        var message = this.add.text(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2, message);
+        message.setOrigin(.5).setVisible(false)
+        return message
+    }
+
+    leftPointText = create_text(
+        "Good cat scored!"
+    )
+
+    rightPointText = create_text(
+        "Evil cat scored!"
+    )
+
+    var create_bitmap = (message) => {
+        var message = this.add.bitmapText(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2, 'font', message, 90);
+        message.setOrigin(.5).setVisible(false)
+        return message
+    }
+
+    leftWin = create_bitmap(
+        'Good cat WINS'
+    )
+
+    rightWin = create_bitmap(
+        'Evil cat WINS'
+    )
+
     leftScoreText = this.add.bitmapText(120, 25, 'font', '0', 72)
     rightScoreText = this.add.bitmapText(this.physics.world.bounds.width - 150, 25, 'font', '0', 72)
 
 
-
-    leftPointText = this.add.text(
-        this.physics.world.bounds.width / 2,
-        this.physics.world.bounds.height / 2,
-        "Good cat scored!"
-    )
-
-    rightPointText = this.add.text(
-        this.physics.world.bounds.width / 2,
-        this.physics.world.bounds.height / 2,
-        "Evil cat scored!"
-    )
-
-    leftPointText.setOrigin(.5)
-    rightPointText.setOrigin(.5)
-    leftPointText.setVisible(false)
-    rightPointText.setVisible(false)
 }
 
 function update() {
@@ -128,6 +156,8 @@ function update() {
     paddleLeft.body.setVelocity(0)
     paddleRight.body.setVelocity(0)
 
+
+    //Movement
     if (keys.w.isDown) {
         paddleLeft.body.setVelocityY(-paddleSpeed)
     }
@@ -144,42 +174,47 @@ function update() {
         paddleRight.body.setVelocityY(paddleSpeed)
     }
 
-    // Left scores
+    //Score function
 
-    if (ball.body.x > paddleRight.body.x + 75) {
+    var freeze_game = (text, score) => {
         paddleLeft.body.setVelocity(0)
-        leftPointText.setVisible(true)
+        paddleRight.body.setVelocity(0)
+        text.setVisible(true)
         ball.setVelocity(0)
         isGameStarted = false
         this.input.keyboard.enabled = false;
         this.time.addEvent({
             delay: 1000,
             callback: () => {
-                leftScore += 1
+                score += 1
                 this.scene.restart()
             },
             loop: true
         })
+    }
 
+    // Left scores
+
+    if (ball.body.x > paddleRight.body.x + 75) {
+        freeze_game(leftPointText, leftScore)
     }
 
     //Right scores
 
     if (ball.body.x < paddleLeft.body.x) {
-        paddleLeft.body.setVelocity(0)
-        rightPointText.setVisible(true)
-        ball.setVelocity(0)
-        isGameStarted = false
-        this.input.keyboard.enabled = false;
-        this.time.addEvent({
-            delay: 1000,
-            callback: () => {
-                rightScore += 1
-                this.scene.restart()
-            },
-            loop: true
-        })
+        freeze_game(paddleRight, rightPointText, rightScore)
     }
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
