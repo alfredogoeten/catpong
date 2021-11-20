@@ -28,7 +28,6 @@ const game = new Phaser.Game(config)
 let ball
 let paddleLeft
 let paddleRight
-let isGameStarted = false
 let arrows
 let keys = {}
 let paddleSpeed = 400
@@ -43,6 +42,7 @@ let leftScore = 0
 let rightScore = 0
 let leftWin
 let rightWin
+let startGame
 
 function preload() {
 
@@ -100,6 +100,7 @@ function create() {
     arrows = this.input.keyboard.createCursorKeys();
     keys.w = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
     keys.s = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
+    keys.space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
 
 
 
@@ -120,18 +121,22 @@ function create() {
         "Evil cat scored!"
     )
 
-    var create_bitmap = (message) => {
-        var message = this.add.bitmapText(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2, 'font', message, 90);
-        message.setOrigin(.5).setVisible(false)
+    var create_bitmap = (message, size, visible) => {
+        var message = this.add.bitmapText(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2 - 50, 'font', message, size);
+        message.setOrigin(.5).setVisible(visible)
         return message
     }
 
     leftWin = create_bitmap(
-        'Good cat WINS'
+        'Good cat WINS', 90, false
     )
 
     rightWin = create_bitmap(
-        'Evil cat WINS'
+        'Evil cat WINS', 90, false
+    )
+
+    startGame = create_bitmap(
+        "Press SPACE to start game", 44, true
     )
 
     leftScoreText = this.add.bitmapText(120, 25, 'font', '0', 72)
@@ -142,13 +147,13 @@ function create() {
 
 function update() {
 
-    //Set ball speed to a random value when game starts
+    //Set ball speed to a random value when space key is pressed  
 
-    if (!isGameStarted) {
+    keys.space.on('down', function () {
         ball.setVelocity(randomDirectionX * randomSpeed, randomDirectionY * randomSpeed)
-        isGameStarted = true
-        this.input.keyboard.enabled = true;
-    }
+        startGame.setVisible(false)        
+    })
+
 
     leftScoreText.text = leftScore
     rightScoreText.text = rightScore
@@ -176,23 +181,19 @@ function update() {
 
 
 
-
-
     // Left scores
 
     if (ball.body.x > paddleRight.body.x + 75) {
 
         paddleLeft.body.setVelocity(0)
         paddleRight.body.setVelocity(0)
-        rightPointText.setVisible(true)
+        leftPointText.setVisible(true)
         ball.setVelocity(0)
-        isGameStarted = false
-        this.input.keyboard.enabled = false;
         this.time.addEvent({
             delay: 1000,
             callback: () => {
                 leftScore += 1
-                this.scene.restart()
+                this.scene.restart()                
             },
             loop: true
         })
@@ -205,13 +206,11 @@ function update() {
         paddleRight.body.setVelocity(0)
         rightPointText.setVisible(true)
         ball.setVelocity(0)
-        isGameStarted = false
-        this.input.keyboard.enabled = false;
         this.time.addEvent({
             delay: 1000,
             callback: () => {
                 rightScore += 1
-                this.scene.restart()
+                this.scene.restart()                
             },
             loop: true
         })
