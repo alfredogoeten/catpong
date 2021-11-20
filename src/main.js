@@ -80,11 +80,11 @@ function create() {
     }
 
     paddleLeft = create_paddle(
-        ball.body.width / 2 + 40,        
+        ball.body.width / 2 + 40,
         'paddleLeft');
 
     paddleRight = create_paddle(
-        this.physics.world.bounds.width - (ball.body.width / 2 + 40),        
+        this.physics.world.bounds.width - (ball.body.width / 2 + 40),
         'paddleRight');
 
     this.physics.add.collider(paddleLeft, ball)
@@ -174,35 +174,47 @@ function update() {
         paddleRight.body.setVelocityY(paddleSpeed)
     }
 
-    //Score function
 
-    var freeze_game = (text, score) => {
+
+
+
+    // Left scores
+
+    if (ball.body.x > paddleRight.body.x + 75) {
+
         paddleLeft.body.setVelocity(0)
         paddleRight.body.setVelocity(0)
-        text.setVisible(true)
+        rightPointText.setVisible(true)
         ball.setVelocity(0)
         isGameStarted = false
         this.input.keyboard.enabled = false;
         this.time.addEvent({
             delay: 1000,
             callback: () => {
-                score += 1
+                leftScore += 1
                 this.scene.restart()
             },
             loop: true
         })
     }
 
-    // Left scores
-
-    if (ball.body.x > paddleRight.body.x + 75) {
-        freeze_game(leftPointText, leftScore)
-    }
-
     //Right scores
 
     if (ball.body.x < paddleLeft.body.x) {
-        freeze_game(paddleRight, rightPointText, rightScore)
+        paddleLeft.body.setVelocity(0)
+        paddleRight.body.setVelocity(0)
+        rightPointText.setVisible(true)
+        ball.setVelocity(0)
+        isGameStarted = false
+        this.input.keyboard.enabled = false;
+        this.time.addEvent({
+            delay: 1000,
+            callback: () => {
+                rightScore += 1
+                this.scene.restart()
+            },
+            loop: true
+        })
     }
 }
 
