@@ -27,6 +27,7 @@ const game = new Phaser.Game(config)
 let ball
 let paddleLeft
 let paddleRight
+let isGameStarted = false
 
 function preload() {
 
@@ -44,11 +45,17 @@ function create() {
         'ball'
     )
 
+    ball.setCollideWorldBounds(true)
+    ball.setBounce(1,1) 
+
     paddleLeft = this.physics.add.sprite(
         ball.body.width / 2 + 40,
         this.physics.world.bounds.height / 2,
         'paddleLeft'
     )
+
+    paddleLeft.setImmovable(true)
+    paddleLeft.setCollideWorldBounds(true)
 
     paddleRight = this.physics.add.sprite(
         this.physics.world.bounds.width - (ball.body.width / 2 + 40),
@@ -56,9 +63,20 @@ function create() {
         'paddleRight'
     )
 
+    paddleRight.setImmovable(true)
+    paddleRight.setCollideWorldBounds(true)
+    
+    this.physics.add.collider(paddleLeft, ball)
+    this.physics.add.collider(paddleRight, ball) 
+
 }
 
 function update() {
+
+    if (!isGameStarted){
+        ball.setVelocity(200, 200)
+        isGameStarted = true
+    }
 
 }
 
