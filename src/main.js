@@ -44,6 +44,8 @@ let leftWin
 let rightWin
 let startGame
 
+let hitSound
+
 function preload() {
 
     this.load.image('ball', require('../assets/sprites/ball.png'))
@@ -52,7 +54,7 @@ function preload() {
 
     this.load.bitmapFont('font', require('../assets/font/font.png'), require('../assets/font/font.xml'))
 
-    this.load.audio('hit', require('../assets/sounds/pong.ogg'), require('../assets/sounds/pong.ogg'))
+    this.load.audio('hit', require('../assets/sounds/pong.ogg'))
 
 }
 
@@ -87,12 +89,14 @@ function create() {
         this.physics.world.bounds.width - (ball.body.width / 2 + 40),
         'paddleRight');
 
-    this.physics.add.collider(paddleLeft, ball)
-    this.physics.add.collider(paddleRight, ball)
+    hitSound = this.sound.add('hit')
 
-
-    this.hitSound = this.sound.add('hit')
-
+    this.physics.add.collider(paddleLeft, ball, function () {
+        hitSound.play()
+    })
+    this.physics.add.collider(paddleRight, ball, function () {
+        hitSound.play()
+    })
 
 
     //Inputs
@@ -101,7 +105,6 @@ function create() {
     keys.w = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W)
     keys.s = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S)
     keys.space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE)
-
 
 
 
@@ -133,13 +136,10 @@ function create() {
         "Press SPACE to start", 44, true
     )
 
-    
+
 
     leftScoreText = this.add.bitmapText(120, 25, 'font', '0', 72)
     rightScoreText = this.add.bitmapText(this.physics.world.bounds.width - 150, 25, 'font', '0', 72)
-
-    
-
 
 }
 
@@ -147,11 +147,12 @@ function update() {
 
     //Set ball speed to a random value when space key is pressed  
 
-    this.input.keyboard.enabled = true;    
+    this.input.keyboard.enabled = true;
 
-    keys.space.on('down', function () {        
+    keys.space.on('down', function () {
         ball.setVelocity(randomDirectionX * randomSpeed, randomDirectionY * randomSpeed)
-        startGame.setVisible(false)        
+        startGame.setVisible(false)
+        keys.space.enabled = false
     })
 
 
@@ -162,7 +163,9 @@ function update() {
     paddleRight.body.setVelocity(0)
 
 
+
     //Movement
+
     if (keys.w.isDown) {
         paddleLeft.body.setVelocityY(-paddleSpeed)
     }
@@ -181,25 +184,25 @@ function update() {
 
 
 
-    var game_reset =() =>{
+    var game_reset = () => {
         paddleLeft.body.setVelocity(0)
         paddleRight.body.setVelocity(0)
-        ball.setVelocity(0)        
+        ball.setVelocity(0)
         startGame.setVisible(false)
         this.input.keyboard.enabled = false;
-    }  
+    }
 
 
     // Left scores
 
     if (ball.body.x > paddleRight.body.x + 75) {
-        game_reset()  
-        leftPointText.setVisible(true)        
+        game_reset()
+        leftPointText.setVisible(true)
         this.time.addEvent({
             delay: 1000,
             callback: () => {
                 leftScore += 1
-                this.scene.restart()                
+                this.scene.restart()
             },
             loop: true
         })
@@ -208,13 +211,13 @@ function update() {
     //Right scores
 
     if (ball.body.x < paddleLeft.body.x) {
-        game_reset()        
-        rightPointText.setVisible(true)        
+        game_reset()
+        rightPointText.setVisible(true)
         this.time.addEvent({
             delay: 1000,
             callback: () => {
                 rightScore += 1
-                this.scene.restart()                
+                this.scene.restart()
             },
             loop: true
         })
@@ -223,33 +226,33 @@ function update() {
 
     //Endgame
 
-    if(leftScore == 7){   
-        game_reset()    
-        ball.setVisible(false)   
-        leftWin.setVisible(true)       
+    if (leftScore == 7) {
+        game_reset()
+        ball.setVisible(false)
+        leftWin.setVisible(true)
         this.time.addEvent({
             delay: 2000,
-            callback: () => {   
-                leftScore =  rightScore = 0                     
-                this.scene.restart()                
+            callback: () => {
+                leftScore = rightScore = 0
+                this.scene.restart()
             },
             loop: true
-        })        
+        })
     }
 
-    if(rightScore == 7){   
-        game_reset()    
-        ball.setVisible(false)   
-        rightWin.setVisible(true)        
+    if (rightScore == 7) {
+        game_reset()
+        ball.setVisible(false)
+        rightWin.setVisible(true)
         this.time.addEvent({
             delay: 2000,
-            callback: () => {   
-                leftScore =  rightScore = 0                     
-                this.scene.restart()                
+            callback: () => {
+                leftScore = rightScore = 0
+                this.scene.restart()
             },
             loop: true
-        })        
-    }        
+        })
+    }
 }
 
 
