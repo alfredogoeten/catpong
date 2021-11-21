@@ -105,39 +105,35 @@ function create() {
 
 
 
-    //Point scored texts
-
-    var create_text = (message) => {
-        var message = this.add.text(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2, message);
-        message.setOrigin(.5).setVisible(false)
-        return message
-    }
-
-    leftPointText = create_text(
-        "Good cat scored!"
-    )
-
-    rightPointText = create_text(
-        "Evil cat scored!"
-    )
+    //Texts   
 
     var create_bitmap = (message, size, visible) => {
-        var message = this.add.bitmapText(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2 - 50, 'font', message, size);
+        var message = this.add.bitmapText(this.physics.world.bounds.width / 2, this.physics.world.bounds.height / 2 - 50, 'font', message, size, "center");
         message.setOrigin(.5).setVisible(visible)
         return message
     }
 
+    leftPointText = create_bitmap(
+        "Good cat\n\n  scored!", 26, false
+    )
+
+    rightPointText = create_bitmap(
+        "Evil cat\n\n scored!", 26, false
+    )
+
     leftWin = create_bitmap(
-        'Good cat WINS', 90, false
+        'Good cat\n   WINS', 90, false
     )
 
     rightWin = create_bitmap(
-        'Evil cat WINS', 90, false
+        'Evil cat\n\n   WINS', 90, false
     )
 
     startGame = create_bitmap(
-        "Press SPACE to start game", 44, true
+        "Press SPACE to start", 44, true
     )
+
+    
 
     leftScoreText = this.add.bitmapText(120, 25, 'font', '0', 72)
     rightScoreText = this.add.bitmapText(this.physics.world.bounds.width - 150, 25, 'font', '0', 72)
@@ -149,7 +145,9 @@ function update() {
 
     //Set ball speed to a random value when space key is pressed  
 
-    keys.space.on('down', function () {
+    this.input.keyboard.enabled = true;    
+
+    keys.space.on('down', function () {        
         ball.setVelocity(randomDirectionX * randomSpeed, randomDirectionY * randomSpeed)
         startGame.setVisible(false)        
     })
@@ -184,10 +182,10 @@ function update() {
     // Left scores
 
     if (ball.body.x > paddleRight.body.x + 75) {
-
         paddleLeft.body.setVelocity(0)
         paddleRight.body.setVelocity(0)
         leftPointText.setVisible(true)
+        this.input.keyboard.enabled = false;
         ball.setVelocity(0)
         this.time.addEvent({
             delay: 1000,
@@ -204,6 +202,7 @@ function update() {
     if (ball.body.x < paddleLeft.body.x) {
         paddleLeft.body.setVelocity(0)
         paddleRight.body.setVelocity(0)
+        this.input.keyboard.enabled = false;
         rightPointText.setVisible(true)
         ball.setVelocity(0)
         this.time.addEvent({
@@ -214,6 +213,41 @@ function update() {
             },
             loop: true
         })
+    }
+
+
+    //Endgame
+
+    if(leftScore == 7){
+        ball.setVisible(false)
+        startGame.setVisible(false)
+        leftWin.setVisible(true)        
+        this.input.keyboard.enabled = false;
+        this.time.addEvent({
+            delay: 2000,
+            callback: () => {   
+                leftScore =  rightScore = 0                     
+                this.scene.restart()                
+            },
+            loop: true
+        })
+        
+    }
+
+    if(rightScore == 7){
+        ball.setVisible(false)
+        startGame.setVisible(false)
+        rightWin.setVisible(true)
+        this.input.keyboard.enabled = false;
+        this.time.addEvent({
+            delay: 2000,
+            callback: () => {   
+                leftScore =  rightScore = 0                     
+                this.scene.restart()                
+            },
+            loop: true
+        })
+        
     }
 }
 
