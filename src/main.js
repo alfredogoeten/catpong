@@ -138,6 +138,8 @@ function create() {
     leftScoreText = this.add.bitmapText(120, 25, 'font', '0', 72)
     rightScoreText = this.add.bitmapText(this.physics.world.bounds.width - 150, 25, 'font', '0', 72)
 
+    
+
 
 }
 
@@ -179,14 +181,20 @@ function update() {
 
 
 
+    var game_reset =() =>{
+        paddleLeft.body.setVelocity(0)
+        paddleRight.body.setVelocity(0)
+        ball.setVelocity(0)        
+        startGame.setVisible(false)
+        this.input.keyboard.enabled = false;
+    }  
+
+
     // Left scores
 
     if (ball.body.x > paddleRight.body.x + 75) {
-        paddleLeft.body.setVelocity(0)
-        paddleRight.body.setVelocity(0)
-        leftPointText.setVisible(true)
-        this.input.keyboard.enabled = false;
-        ball.setVelocity(0)
+        game_reset()  
+        leftPointText.setVisible(true)        
         this.time.addEvent({
             delay: 1000,
             callback: () => {
@@ -200,11 +208,8 @@ function update() {
     //Right scores
 
     if (ball.body.x < paddleLeft.body.x) {
-        paddleLeft.body.setVelocity(0)
-        paddleRight.body.setVelocity(0)
-        this.input.keyboard.enabled = false;
-        rightPointText.setVisible(true)
-        ball.setVelocity(0)
+        game_reset()        
+        rightPointText.setVisible(true)        
         this.time.addEvent({
             delay: 1000,
             callback: () => {
@@ -218,11 +223,10 @@ function update() {
 
     //Endgame
 
-    if(leftScore == 7){
-        ball.setVisible(false)
-        startGame.setVisible(false)
-        leftWin.setVisible(true)        
-        this.input.keyboard.enabled = false;
+    if(leftScore == 7){   
+        game_reset()    
+        ball.setVisible(false)   
+        leftWin.setVisible(true)       
         this.time.addEvent({
             delay: 2000,
             callback: () => {   
@@ -230,15 +234,13 @@ function update() {
                 this.scene.restart()                
             },
             loop: true
-        })
-        
+        })        
     }
 
-    if(rightScore == 7){
-        ball.setVisible(false)
-        startGame.setVisible(false)
-        rightWin.setVisible(true)
-        this.input.keyboard.enabled = false;
+    if(rightScore == 7){   
+        game_reset()    
+        ball.setVisible(false)   
+        rightWin.setVisible(true)        
         this.time.addEvent({
             delay: 2000,
             callback: () => {   
@@ -246,9 +248,8 @@ function update() {
                 this.scene.restart()                
             },
             loop: true
-        })
-        
-    }
+        })        
+    }        
 }
 
 
