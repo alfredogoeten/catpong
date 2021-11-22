@@ -43,7 +43,6 @@ let rightScore = 0
 let leftWin
 let rightWin
 let startGame
-
 let hitSound
 
 function preload() {
@@ -55,6 +54,7 @@ function preload() {
     this.load.bitmapFont('font', require('../assets/font/font.png'), require('../assets/font/font.xml'))
 
     this.load.audio('hit', require('../assets/sounds/pong.ogg'))
+
 
 }
 
@@ -89,11 +89,14 @@ function create() {
         this.physics.world.bounds.width - (ball.body.width / 2 + 40),
         'paddleRight');
 
+
     hitSound = this.sound.add('hit')
+
 
     this.physics.add.collider(paddleLeft, ball, function () {
         hitSound.play()
     })
+
     this.physics.add.collider(paddleRight, ball, function () {
         hitSound.play()
     })
@@ -136,8 +139,6 @@ function create() {
         "Press SPACE to start", 44, true
     )
 
-
-
     leftScoreText = this.add.bitmapText(120, 25, 'font', '0', 72)
     rightScoreText = this.add.bitmapText(this.physics.world.bounds.width - 150, 25, 'font', '0', 72)
 
@@ -155,14 +156,11 @@ function update() {
         keys.space.enabled = false
     })
 
-
     leftScoreText.text = leftScore
     rightScoreText.text = rightScore
 
     paddleLeft.body.setVelocity(0)
     paddleRight.body.setVelocity(0)
-
-
 
     //Movement
 
