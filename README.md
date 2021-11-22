@@ -1,5 +1,13 @@
 # CatPong
 
+## Run
+    npm install
+    npm run start
+
+## Controls
+    W and S - move left paddle
+    Up and Down - move right paddle
+    Spacebar - start game
 ## Mechanics 
 Each player must use the keyboard to control their paddle, the first player must press [W] 
 key to move paddle up and [S] key to move down and the second player, [Up] and [Down] 
@@ -17,3 +25,4 @@ starts again.
 The game ends when one of the players scores 7 points and a message showing the player 
 number who won the match is showed and then the scoreboard is reset, starting a new game 
 match.
+
